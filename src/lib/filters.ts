@@ -4,16 +4,21 @@ export enum OrderBy {
 }
 
 export enum Color {
-  all = "all",
-  blackAndWhite = "black_and_white",
-  black = "black",
-  white = "white",
-  yellow = "yellow",
-  orange = "orange",
-  red = "red",
-  purple = "purple",
-  magenta = "magenta",
-  green = "green",
-  teal = "teal",
-  blue = "blue",
+  ALL = "all",
+  BLACK_AND_WHITE = "black_and_white",
+  BLACK = "black",
+  WHITE = "white",
+  YELLOW = "yellow",
+  ORANGE = "orange",
+  RED = "red",
+  PURPLE = "purple",
+  MAGENTA = "magenta",
+  GREEN = "green",
+  TEAL = "teal",
+  BLUE = "blue",
+}
+
+export interface FilterState {
+  orderBy: OrderBy;
+  color: Color;
 }

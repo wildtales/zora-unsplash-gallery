@@ -6,50 +6,73 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, SyntheticEvent } from "react";
 
 // TODO: Possible to add the page to the URL so user can always reference back
 // to the page in question (but have to save the parameters of the query in the URL as well)
 
-export const PaginationBar = ({
-  totalPages,
-  currentPage,
-  setPage,
-}: {
-  totalPages?: number;
-  currentPage: number;
-  setPage: Dispatch<SetStateAction<number>>;
-}) => {
+// Exported for testing
+export const getPageNumbers = (currentPage: number, totalPages?: number) => {
   const pageLowerBound = Math.max(currentPage - 1, 1);
 
-  const pages = [pageLowerBound, pageLowerBound + 1, pageLowerBound + 2];
+  const pages = [pageLowerBound, pageLowerBound + 1];
+
+  if (totalPages === undefined || pageLowerBound + 2 <= totalPages) {
+    pages.push(pageLowerBound + 2);
+  }
+
+  return pages;
+};
+
+export const PaginationBar = ({
+  currentPage,
+  totalPages,
+  setPage,
+}: {
+  currentPage: number;
+  setPage: Dispatch<SetStateAction<number>>;
+  totalPages?: number;
+}) => {
+  const pages = getPageNumbers(currentPage, totalPages);
+  const isLastPage = currentPage === totalPages;
+  const isFirstPage = currentPage === 1;
+
+  const goToPreviousPage = () => {
+    setPage((prevPage) => Math.max(prevPage - 1, 1));
+  };
+
+  const goToNextPage = (e: SyntheticEvent) => {
+    e.stopPropagation();
+
+    if (!isLastPage) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  };
 
   return (
     <Pagination>
       <PaginationContent>
         <PaginationItem
-          aria-disabled={currentPage === 1}
-          className={currentPage === 1 ? "cursor-not-allowed" : ""}
+          aria-disabled={isFirstPage}
+          className={isFirstPage ? "cursor-not-allowed" : ""}
         >
-          <PaginationPrevious
-            onClick={() => setPage((prevPage) => Math.max(prevPage - 1, 1))}
-          />
+          <PaginationPrevious onClick={goToPreviousPage} />
         </PaginationItem>
-        {pages.map((pageItem) => (
-          <PaginationItem>
+        {pages.map((page) => (
+          <PaginationItem key={page} data-testid="page-count">
             <PaginationLink
-              isActive={currentPage === pageItem}
-              onClick={() => setPage(pageItem)}
+              isActive={currentPage === page}
+              onClick={() => setPage(page)}
             >
-              {pageItem}
+              {page}
             </PaginationLink>
           </PaginationItem>
         ))}
-        <PaginationItem>
+        <PaginationItem aria-disabled={isLastPage}>
           <PaginationNext
-            aria-disabled={currentPage === totalPages}
-            className={currentPage === totalPages ? "cursor-not-allowed" : ""}
-            onClick={() => setPage((prevPage) => prevPage + 1)}
+            aria-disabled={isLastPage}
+            className={isLastPage ? "cursor-not-allowed" : ""}
+            onClick={goToNextPage}
           />
         </PaginationItem>
       </PaginationContent>

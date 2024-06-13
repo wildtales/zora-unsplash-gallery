@@ -1,41 +1,15 @@
 "use client";
 
-import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { KeyboardEvent, useState } from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { PaginationBar } from "./PaginationBar";
 import { SortFilterToolbar } from "./SortFilterToolbar";
-import { Color, OrderBy } from "@/lib/filters";
-import { SearchResponse } from "@/lib/search-result";
+import { Color, FilterState, OrderBy } from "@/lib/filters";
 import { GalleryItem } from "./GalleryItem";
 import { Input } from "@/components/ui/input";
-
-interface FilterState {
-  orderBy: OrderBy;
-  color: Color;
-}
-
-// TODO: Move API call to server side, environment variable should not be exposed
-const searchPhotos = async (
-  query: string,
-  page: number,
-  { color, orderBy: order_by }: FilterState
-) => {
-  const response = await axios.get("https://api.unsplash.com/search/photos", {
-    params: {
-      client_id: process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY,
-      color: color === Color.all ? undefined : color,
-      order_by,
-      page,
-      per_page: 9,
-      query,
-    },
-  });
-
-  return response?.data as SearchResponse;
-};
+import { searchPhotos } from "./api/search-photos";
 
 const LoadingGallery = () => {
   return (
@@ -45,7 +19,7 @@ const LoadingGallery = () => {
         {Array(9)
           .fill(1)
           .map((_elem, idx) => (
-            <Skeleton key={idx} className="w-60 h-60" />
+            <Skeleton key={idx} className="w-full h-[250px]" />
           ))}
       </div>
     </>
@@ -54,12 +28,10 @@ const LoadingGallery = () => {
 
 export const Gallery = () => {
   const [searchInput, setSearchInput] = useState("");
-
   const [page, setPage] = useState(1);
-
   const [filters, setFilters] = useState<FilterState>({
     orderBy: OrderBy.LATEST,
-    color: Color.all,
+    color: Color.ALL,
   });
 
   const { data, error, isLoading, status } = useQuery({
@@ -72,16 +44,20 @@ export const Gallery = () => {
 
   const items = results || [];
 
-  const handleInputChange = async (e: any) => {
-    if (e.key === "Enter") {
-      setSearchInput(e.target.value);
-      setPage(1);
+  const handleInputChange = async (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.target) {
+      const target = e.target as HTMLButtonElement;
+
+      if (e.key === "Enter") {
+        setSearchInput(target.value);
+        setPage(1);
+      }
     }
   };
 
-  const updateFilters = (key: "orderBy" | "color", value: string) => {
+  const updateFilters = (key: keyof FilterState, value: string) => {
     setFilters((prevFilters) => {
-      const updatedFilters = { ...prevFilters };
+      const updatedFilters: FilterState = { ...prevFilters };
 
       (updatedFilters as any)[key] = value;
 
@@ -98,7 +74,7 @@ export const Gallery = () => {
       <SortFilterToolbar updateFilters={updateFilters} filters={filters} />
 
       {error ? (
-        <div>There was an issue fetching photos.</div>
+        <div>There was an issue fetching photos</div>
       ) : isLoading ? (
         <LoadingGallery />
       ) : items.length === 0 && status === "success" ? (

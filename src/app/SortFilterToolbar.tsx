@@ -4,25 +4,16 @@ import {
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
-import { Color, OrderBy } from "@/lib/filters";
+import { Color, FilterState, OrderBy } from "@/lib/filters";
+import { toCapitalizedWords } from "@/lib/formatters";
 import { ChevronDown } from "lucide-react";
-
-function toCapitalizedWords(name: string) {
-  var words = name.match(/[A-Za-z][a-z]*/g) || [];
-
-  return words.map(capitalize).join(" ");
-}
-
-function capitalize(word: string) {
-  return word.charAt(0).toUpperCase() + word.substring(1);
-}
 
 export const SortFilterToolbar = ({
   filters,
   updateFilters,
 }: {
-  filters: any;
-  updateFilters: any;
+  filters: FilterState;
+  updateFilters: (key: keyof FilterState, value: OrderBy | Color) => void;
 }) => {
   return (
     <div className="flex justify-end mt-4 gap-4">
@@ -36,6 +27,7 @@ export const SortFilterToolbar = ({
         <DropdownMenuContent>
           {Object.values(Color).map((value) => (
             <DropdownMenuCheckboxItem
+              key={value}
               checked={filters.color === value}
               onClick={() => updateFilters("color", value)}
             >
