@@ -6,7 +6,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Dispatch, SetStateAction, SyntheticEvent } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 // TODO: Possible to add the page to the URL so user can always reference back
 // to the page in question (but have to save the parameters of the query in the URL as well)
@@ -41,9 +41,7 @@ export const PaginationBar = ({
     setPage((prevPage) => Math.max(prevPage - 1, 1));
   };
 
-  const goToNextPage = (e: SyntheticEvent) => {
-    e.stopPropagation();
-
+  const goToNextPage = () => {
     if (!isLastPage) {
       setPage((prevPage) => prevPage + 1);
     }
@@ -52,11 +50,12 @@ export const PaginationBar = ({
   return (
     <Pagination>
       <PaginationContent>
-        <PaginationItem
-          aria-disabled={isFirstPage}
-          className={isFirstPage ? "cursor-not-allowed" : ""}
-        >
-          <PaginationPrevious onClick={goToPreviousPage} />
+        <PaginationItem>
+          <PaginationPrevious
+            aria-disabled={isFirstPage}
+            className={isFirstPage ? "cursor-not-allowed" : "cursor-pointer"}
+            onClick={goToPreviousPage}
+          />
         </PaginationItem>
         {pages.map((page) => (
           <PaginationItem key={page} data-testid="page-count">
@@ -68,10 +67,10 @@ export const PaginationBar = ({
             </PaginationLink>
           </PaginationItem>
         ))}
-        <PaginationItem aria-disabled={isLastPage}>
+        <PaginationItem>
           <PaginationNext
             aria-disabled={isLastPage}
-            className={isLastPage ? "cursor-not-allowed" : ""}
+            className={isLastPage ? "cursor-not-allowed" : "cursor-pointer"}
             onClick={goToNextPage}
           />
         </PaginationItem>
