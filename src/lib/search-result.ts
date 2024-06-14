@@ -7,9 +7,3 @@ export interface SearchResult {
   };
   alt_description: string;
 }
-
-export interface SearchResponse {
-  results: SearchResult[];
-  total: number;
-  total_pages: number;
-}
