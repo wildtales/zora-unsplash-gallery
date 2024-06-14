@@ -61,10 +61,10 @@ export const Gallery = () => {
 
       (updatedFilters as any)[key] = value;
 
-      setPage(1);
-
       return updatedFilters;
     });
+
+    setPage(1);
   };
 
   return (

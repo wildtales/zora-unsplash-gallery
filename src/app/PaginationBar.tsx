@@ -15,6 +15,10 @@ import { Dispatch, SetStateAction } from "react";
 export const getPageNumbers = (currentPage: number, totalPages?: number) => {
   const pageLowerBound = Math.max(currentPage - 1, 1);
 
+  if (pageLowerBound === totalPages) {
+    return [pageLowerBound];
+  }
+
   const pages = [pageLowerBound, pageLowerBound + 1];
 
   if (totalPages === undefined || pageLowerBound + 2 <= totalPages) {
